@@ -5,12 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Screen Time Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <!-- Supabase client (ESM) -->
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        const SUPABASE_URL = "https://wayfhpjbpmkfrmlskxqj.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndheWZocGpicG1rZnJtbHNreHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2OTYxNDMsImV4cCI6MjA4NjI3MjE0M30.MvCYHUHsK1Xm3_aB6zshRUlAvnqYaCb5BT1e6y2zg9Y";
+
+        // Expose as window.supabase for the rest of the app script (non-module)
+        window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
+
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -22,15 +30,12 @@
             padding: 40px 16px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 480px;
-        }
+        .container { width: 100%; max-width: 480px; }
 
         h1 {
             font-size: 28px;
             font-weight: 700;
-            margin-bottom: 24px;
+            margin-bottom: 14px;
             text-align: center;
         }
 
@@ -59,16 +64,11 @@
         .tab-btn.active {
             background: #fff;
             color: #1c1c1e;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
 
         /* Cards */
         .card {
@@ -76,28 +76,13 @@
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
-        .card.total {
-            background: #007aff;
-            color: #fff;
-        }
-
-        .card.other {
-            background: #5856d6;
-            color: #fff;
-        }
-
-        .card.date-card {
-            background: #34c759;
-            color: #fff;
-        }
-
-        .card.checkin-header-card {
-            background: #ff9500;
-            color: #fff;
-        }
+        .card.total { background: #007aff; color: #fff; }
+        .card.other { background: #5856d6; color: #fff; }
+        .card.date-card { background: #34c759; color: #fff; }
+        .card.checkin-header-card { background: #ff9500; color: #fff; }
 
         .card-label {
             font-size: 14px;
@@ -111,24 +96,12 @@
         .card.total .card-label,
         .card.other .card-label,
         .card.date-card .card-label,
-        .card.checkin-header-card .card-label {
-            opacity: 1;
-            color: rgba(255, 255, 255, 0.85);
-        }
+        .card.checkin-header-card .card-label { opacity: 1; color: rgba(255,255,255,0.85); }
 
         /* Time inputs */
-        .time-inputs {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .time-inputs { display: flex; align-items: center; gap: 8px; }
 
-        .time-field {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
+        .time-field { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 
         .time-field input {
             width: 72px;
@@ -144,23 +117,15 @@
             color: #1c1c1e;
         }
 
-        .time-field input:focus {
-            border-color: #007aff;
-        }
+        .time-field input:focus { border-color: #007aff; }
 
         .card.total .time-field input {
-            border-color: rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
             color: #fff;
         }
-
-        .card.total .time-field input:focus {
-            border-color: rgba(255, 255, 255, 0.7);
-        }
-
-        .card.total .time-field input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
+        .card.total .time-field input:focus { border-color: rgba(255,255,255,0.7); }
+        .card.total .time-field input::placeholder { color: rgba(255,255,255,0.5); }
 
         .time-field label {
             font-size: 11px;
@@ -170,27 +135,13 @@
         }
 
         .card.total .time-field label,
-        .card.other .time-field label {
-            color: rgba(255, 255, 255, 0.7);
-        }
+        .card.other .time-field label { color: rgba(255,255,255,0.7); }
 
-        .time-separator {
-            font-size: 24px;
-            font-weight: 700;
-            margin-top: -16px;
-        }
+        .time-separator { font-size: 24px; font-weight: 700; margin-top: -16px; }
 
         /* Other display */
-        .other-display {
-            font-size: 36px;
-            font-weight: 700;
-        }
-
-        .other-display .unit {
-            font-size: 16px;
-            font-weight: 500;
-            opacity: 0.8;
-        }
+        .other-display { font-size: 36px; font-weight: 700; }
+        .other-display .unit { font-size: 16px; font-weight: 500; opacity: 0.8; }
 
         /* App icons */
         .app-icon {
@@ -207,15 +158,8 @@
             flex-shrink: 0;
         }
 
-        .app-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .app-header .card-label {
-            margin-bottom: 0;
-        }
+        .app-header { display: flex; align-items: center; margin-bottom: 12px; }
+        .app-header .card-label { margin-bottom: 0; }
 
         .icon-facebook { background: #1877f2; }
         .icon-instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
@@ -225,38 +169,20 @@
         .icon-games { background: #5856d6; }
         .icon-youtube { background: #ff0000; }
 
-        .warning {
-            color: #ff3b30;
-            font-size: 13px;
-            font-weight: 500;
-            margin-top: 8px;
-            display: none;
-        }
+        .warning { color: #ff3b30; font-size: 13px; font-weight: 500; margin-top: 8px; display: none; }
+        .card.other .warning { color: #ffcc00; }
 
-        .card.other .warning {
-            color: #ffcc00;
-        }
-
-        .summary {
-            text-align: center;
-            font-size: 13px;
-            color: #8e8e93;
-            margin-top: 8px;
-        }
+        .summary { text-align: center; font-size: 13px; color: #8e8e93; margin-top: 8px; }
 
         /* Date picker */
-        .date-inputs {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .date-inputs { display: flex; align-items: center; gap: 10px; }
 
         .date-inputs input[type="date"] {
             flex: 1;
             height: 48px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255,255,255,0.15);
             color: #fff;
             font-size: 16px;
             font-weight: 600;
@@ -265,28 +191,18 @@
             transition: border-color 0.2s;
         }
 
-        .date-inputs input[type="date"]:focus {
-            border-color: rgba(255, 255, 255, 0.7);
-        }
+        .date-inputs input[type="date"]:focus { border-color: rgba(255,255,255,0.7); }
+        .date-inputs input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
-        .date-inputs input[type="date"]::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-        }
-
-        .date-status {
-            font-size: 13px;
-            margin-top: 8px;
-            color: rgba(255, 255, 255, 0.75);
-            min-height: 18px;
-        }
+        .date-status { font-size: 13px; margin-top: 8px; color: rgba(255,255,255,0.75); min-height: 18px; }
 
         /* Buttons */
         .btn-today {
             height: 48px;
             padding: 0 16px;
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(255,255,255,0.4);
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.2);
             color: #fff;
             font-size: 14px;
             font-weight: 600;
@@ -294,14 +210,9 @@
             transition: background 0.2s;
             white-space: nowrap;
         }
+        .btn-today:hover { background: rgba(255,255,255,0.3); }
 
-        .btn-today:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .save-area {
-            margin-bottom: 16px;
-        }
+        .save-area { margin-bottom: 16px; }
 
         .btn-primary {
             width: 100%;
@@ -315,10 +226,7 @@
             cursor: pointer;
             transition: opacity 0.2s;
         }
-
-        .btn-primary:hover {
-            opacity: 0.85;
-        }
+        .btn-primary:hover { opacity: 0.85; }
 
         .btn-skip {
             width: 100%;
@@ -332,10 +240,7 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-
-        .btn-skip:hover {
-            background: rgba(142, 142, 147, 0.1);
-        }
+        .btn-skip:hover { background: rgba(142,142,147,0.1); }
 
         .btn-small {
             padding: 6px 14px;
@@ -346,36 +251,16 @@
             cursor: pointer;
             transition: opacity 0.2s;
         }
+        .btn-small:hover { opacity: 0.8; }
 
-        .btn-small:hover {
-            opacity: 0.8;
-        }
-
-        .btn-edit {
-            background: #007aff;
-            color: #fff;
-        }
-
-        .btn-delete {
-            background: #ff3b30;
-            color: #fff;
-        }
+        .btn-edit { background: #007aff; color: #fff; }
+        .btn-delete { background: #ff3b30; color: #fff; }
 
         /* Toggle buttons */
-        .toggle-question {
-            margin-bottom: 8px;
-        }
+        .toggle-question { margin-bottom: 8px; }
+        .toggle-label { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
 
-        .toggle-label {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .toggle-group {
-            display: flex;
-            gap: 8px;
-        }
+        .toggle-group { display: flex; gap: 8px; }
 
         .toggle-btn {
             flex: 1;
@@ -391,29 +276,12 @@
             text-align: center;
         }
 
-        .toggle-btn.selected-yes {
-            border-color: #34c759;
-            background: #34c759;
-            color: #fff;
-        }
-
-        .toggle-btn.selected-no {
-            border-color: #ff3b30;
-            background: #ff3b30;
-            color: #fff;
-        }
+        .toggle-btn.selected-yes { border-color: #34c759; background: #34c759; color: #fff; }
+        .toggle-btn.selected-no { border-color: #ff3b30; background: #ff3b30; color: #fff; }
 
         /* Slider */
-        .slider-container {
-            text-align: center;
-        }
-
-        .slider-value {
-            font-size: 48px;
-            font-weight: 700;
-            color: #ff9500;
-            margin-bottom: 8px;
-        }
+        .slider-container { text-align: center; }
+        .slider-value { font-size: 48px; font-weight: 700; color: #ff9500; margin-bottom: 8px; }
 
         .slider-labels {
             display: flex;
@@ -442,7 +310,7 @@
             background: #ff9500;
             cursor: pointer;
             border: 3px solid #fff;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         input[type="range"]::-moz-range-thumb {
@@ -452,29 +320,14 @@
             background: #ff9500;
             cursor: pointer;
             border: 3px solid #fff;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
         }
 
         /* Checkin panel */
-        .checkin-panel {
-            display: none;
-        }
-
-        .checkin-panel.active {
-            display: block;
-        }
-
-        .checkin-date-display {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .checkin-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 8px;
-        }
+        .checkin-panel { display: none; }
+        .checkin-panel.active { display: block; }
+        .checkin-date-display { font-size: 18px; font-weight: 700; }
+        .checkin-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
 
         /* History */
         .history-header {
@@ -484,15 +337,9 @@
             margin-bottom: 16px;
         }
 
-        .history-header .card-label {
-            margin-bottom: 0;
-        }
+        .history-header .card-label { margin-bottom: 0; }
 
-        .history-count {
-            font-size: 13px;
-            color: #8e8e93;
-            font-weight: 500;
-        }
+        .history-count { font-size: 13px; color: #8e8e93; font-weight: 500; }
 
         .history-entry-header {
             display: flex;
@@ -501,23 +348,10 @@
             margin-bottom: 10px;
         }
 
-        .history-date {
-            font-size: 15px;
-            font-weight: 600;
-        }
+        .history-date { font-size: 15px; font-weight: 600; }
+        .history-total { font-size: 20px; font-weight: 700; color: #007aff; }
 
-        .history-total {
-            font-size: 20px;
-            font-weight: 700;
-            color: #007aff;
-        }
-
-        .history-apps {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
+        .history-apps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 
         .app-pill {
             display: inline-block;
@@ -528,9 +362,7 @@
             color: #fff;
         }
 
-        .app-pill.snap-pill {
-            color: #1c1c1e;
-        }
+        .app-pill.snap-pill { color: #1c1c1e; }
 
         .history-checkin {
             display: flex;
@@ -554,28 +386,11 @@
             color: #1c1c1e;
         }
 
-        .checkin-badge.positive {
-            background: #d4f5dc;
-            color: #1b7a2e;
-        }
+        .checkin-badge.positive { background: #d4f5dc; color: #1b7a2e; }
+        .checkin-badge.negative { background: #fde8e8; color: #c0392b; }
+        .checkin-badge.rating { background: #fff3e0; color: #e67e22; font-size: 13px; font-weight: 700; }
 
-        .checkin-badge.negative {
-            background: #fde8e8;
-            color: #c0392b;
-        }
-
-        .checkin-badge.rating {
-            background: #fff3e0;
-            color: #e67e22;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
+        .history-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
         .empty-state {
             text-align: center;
@@ -586,13 +401,8 @@
         }
 
         /* Charts */
-        .chart-section {
-            margin-bottom: 16px;
-        }
-
-        .chart-section canvas {
-            max-height: 250px;
-        }
+        .chart-section { margin-bottom: 16px; }
+        .chart-section canvas { max-height: 250px; }
 
         .toast {
             position: fixed;
@@ -611,15 +421,57 @@
             z-index: 100;
         }
 
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Auth UI */
+        .auth-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .auth-row input {
+            flex: 1;
+            height: 44px;
+            border: 2px solid #e5e5ea;
+            border-radius: 10px;
+            padding: 0 12px;
+            outline: none;
+            font-size: 14px;
+        }
+        .auth-actions { display: flex; gap: 8px; }
+        .auth-actions button { flex: 1; }
+        .auth-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: #f0f0f5;
+            color: #1c1c1e;
+            font-size: 12px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Screen Time Tracker</h1>
+
+        <!-- AUTH CARD -->
+        <div class="card" id="auth-card">
+            <div class="card-label">Account</div>
+
+            <div style="display:flex; justify-content: space-between; align-items:center; gap:10px; margin-bottom:10px;">
+                <div class="auth-badge" id="auth-badge">Not logged in (local only)</div>
+                <button class="btn-small btn-delete" id="btn-logout" style="display:none;">Log out</button>
+            </div>
+
+            <div class="auth-row">
+                <input id="auth-email" type="email" placeholder="Email">
+                <input id="auth-password" type="password" placeholder="Password">
+            </div>
+
+            <div class="auth-actions">
+                <button class="btn-small btn-edit" id="btn-signup">Sign up</button>
+                <button class="btn-small btn-edit" id="btn-login">Log in</button>
+            </div>
+
+            <div class="summary" id="auth-status" style="margin-top:10px;"></div>
+        </div>
 
         <div class="tab-bar" id="tab-bar">
             <button class="tab-btn active" data-tab="input">Input</button>
@@ -915,8 +767,35 @@
         let checkinState = { workout: null, creatine: null, work: null, rating: 5.0 };
         let checkinDateStr = null;
 
-        // --- Data Layer ---
-        function loadAllData() {
+        // Supabase session
+        let currentUser = null;
+
+        // --- Helpers ---
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        function setAuthUI() {
+            const badge = document.getElementById('auth-badge');
+            const logoutBtn = document.getElementById('btn-logout');
+            const status = document.getElementById('auth-status');
+
+            if (currentUser) {
+                badge.textContent = `Logged in: ${currentUser.email} (sync ON)`;
+                logoutBtn.style.display = 'inline-block';
+                status.textContent = '';
+            } else {
+                badge.textContent = 'Not logged in (local only)';
+                logoutBtn.style.display = 'none';
+                status.textContent = '';
+            }
+        }
+
+        // --- Local Storage Data Layer ---
+        function loadAllDataLocal() {
             try {
                 const raw = localStorage.getItem(STORAGE_KEY);
                 if (!raw) return { entries: {} };
@@ -926,65 +805,157 @@
             }
         }
 
-        function persistData(data) {
+        function persistDataLocal(data) {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
-        function saveEntry(dateStr) {
-            const data = loadAllData();
+        // --- Supabase Data Layer ---
+        async function loadAllDataCloud() {
+            // Returns { entries: { [dateStr]: entryObj } }
+            const sb = window.supabase;
+            if (!sb || !currentUser) return null;
+
+            const { data, error } = await sb
+                .from('entries')
+                .select('entry_date, data')
+                .order('entry_date', { ascending: true });
+
+            if (error) {
+                console.error(error);
+                showToast('Cloud load failed');
+                return null;
+            }
+
+            const out = { entries: {} };
+            for (const row of data) {
+                const dateStr = row.entry_date; // YYYY-MM-DD
+                out.entries[dateStr] = row.data;
+            }
+            return out;
+        }
+
+        async function upsertEntryCloud(dateStr, entry) {
+            const sb = window.supabase;
+            if (!sb || !currentUser) return;
+
+            const payload = {
+                user_id: currentUser.id,
+                entry_date: dateStr,
+                data: entry
+            };
+
+            const { error } = await sb
+                .from('entries')
+                .upsert(payload, { onConflict: 'user_id,entry_date' });
+
+            if (error) {
+                console.error(error);
+                showToast('Cloud save failed');
+            }
+        }
+
+        async function deleteEntryCloud(dateStr) {
+            const sb = window.supabase;
+            if (!sb || !currentUser) return;
+
+            const { error } = await sb
+                .from('entries')
+                .delete()
+                .eq('user_id', currentUser.id)
+                .eq('entry_date', dateStr);
+
+            if (error) {
+                console.error(error);
+                showToast('Cloud delete failed');
+            }
+        }
+
+        // Unified: choose cloud if logged in, else local
+        async function loadAllData() {
+            if (currentUser) {
+                const cloud = await loadAllDataCloud();
+                if (cloud) return cloud;
+            }
+            return loadAllDataLocal();
+        }
+
+        async function saveEntry(dateStr) {
+            const data = await loadAllData();
             const existing = data.entries[dateStr];
+
             const entry = {
                 total: { h: getVal('total-h'), m: getVal('total-m') },
                 apps: {}
             };
+
             APPS.forEach(app => {
                 const h = parseInt(document.querySelector(`input[data-app="${app.id}"][data-unit="h"]`).value) || 0;
                 const m = parseInt(document.querySelector(`input[data-app="${app.id}"][data-unit="m"]`).value) || 0;
                 entry.apps[app.id] = { h, m };
             });
+
             // Preserve existing checkin data if present
-            if (existing && existing.checkin) {
-                entry.checkin = existing.checkin;
-            }
+            if (existing && existing.checkin) entry.checkin = existing.checkin;
+
             data.entries[dateStr] = entry;
-            persistData(data);
+
+            if (currentUser) {
+                await upsertEntryCloud(dateStr, entry);
+            } else {
+                persistDataLocal(data);
+            }
         }
 
-        function saveCheckin(dateStr) {
-            const data = loadAllData();
+        async function saveCheckin(dateStr) {
+            const data = await loadAllData();
             if (!data.entries[dateStr]) return;
+
             data.entries[dateStr].checkin = {
                 workout: checkinState.workout,
                 creatine: checkinState.creatine,
                 work: checkinState.work,
                 rating: parseFloat(document.getElementById('rating-slider').value)
             };
-            persistData(data);
+
+            if (currentUser) {
+                await upsertEntryCloud(dateStr, data.entries[dateStr]);
+            } else {
+                persistDataLocal(data);
+            }
         }
 
-        function deleteEntry(dateStr) {
-            const data = loadAllData();
+        async function deleteEntry(dateStr) {
+            const data = await loadAllData();
             delete data.entries[dateStr];
-            persistData(data);
+
+            if (currentUser) {
+                await deleteEntryCloud(dateStr);
+            } else {
+                persistDataLocal(data);
+            }
         }
 
-        function loadEntryToForm(dateStr) {
-            const data = loadAllData();
+        async function loadEntryToForm(dateStr) {
+            const data = await loadAllData();
             const entry = data.entries[dateStr];
             const status = document.getElementById('date-status');
+
             if (entry) {
-                document.getElementById('total-h').value = entry.total.h || '';
-                document.getElementById('total-m').value = entry.total.m || '';
+                document.getElementById('total-h').value = entry.total?.h ?? '';
+                document.getElementById('total-m').value = entry.total?.m ?? '';
+
                 APPS.forEach(app => {
-                    const appData = entry.apps[app.id];
-                    document.querySelector(`input[data-app="${app.id}"][data-unit="h"]`).value = appData?.h || '';
-                    document.querySelector(`input[data-app="${app.id}"][data-unit="m"]`).value = appData?.m || '';
+                    const appData = entry.apps?.[app.id];
+                    document.querySelector(`input[data-app="${app.id}"][data-unit="h"]`).value = appData?.h ?? '';
+                    document.querySelector(`input[data-app="${app.id}"][data-unit="m"]`).value = appData?.m ?? '';
                 });
-                status.textContent = 'Saved entry loaded';
+
+                status.textContent = currentUser ? 'Cloud entry loaded' : 'Saved entry loaded';
             } else {
                 clearForm();
                 status.textContent = 'No data for this date';
             }
+
             calculate();
         }
 
@@ -1043,14 +1014,6 @@
             if (tabName === 'charts') renderCharts();
         }
 
-        // --- Toast ---
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
-        }
-
         // --- Date helpers ---
         function getTodayStr() {
             const d = new Date();
@@ -1071,18 +1034,21 @@
         }
 
         // --- Check-in ---
-        function showCheckin(dateStr) {
+        async function showCheckin(dateStr) {
             checkinDateStr = dateStr;
+
             // Hide tab bar and all tab panels
             document.getElementById('tab-bar').style.display = 'none';
             document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
             // Show checkin panel
             document.getElementById('panel-checkin').classList.add('active');
             document.getElementById('checkin-date-display').textContent = formatDate(dateStr);
 
             // Load existing checkin data if present
-            const data = loadAllData();
+            const data = await loadAllData();
             const entry = data.entries[dateStr];
+
             if (entry && entry.checkin) {
                 checkinState.workout = entry.checkin.workout;
                 checkinState.creatine = entry.checkin.creatine;
@@ -1092,7 +1058,6 @@
                 checkinState = { workout: null, creatine: null, work: null, rating: 5.0 };
             }
 
-            // Update UI
             updateToggleUI('workout', checkinState.workout);
             updateToggleUI('creatine', checkinState.creatine);
             updateToggleUI('work', checkinState.work);
@@ -1122,12 +1087,13 @@
         }
 
         function updateRatingDisplay() {
-            document.getElementById('rating-display').textContent = parseFloat(document.getElementById('rating-slider').value).toFixed(1);
+            document.getElementById('rating-display').textContent =
+                parseFloat(document.getElementById('rating-slider').value).toFixed(1);
         }
 
         // --- History ---
-        function renderHistory() {
-            const data = loadAllData();
+        async function renderHistory() {
+            const data = await loadAllData();
             const dates = Object.keys(data.entries).sort().reverse();
             const listEl = document.getElementById('history-list');
             const emptyEl = document.getElementById('history-empty');
@@ -1144,11 +1110,11 @@
 
             listEl.innerHTML = dates.map(dateStr => {
                 const entry = data.entries[dateStr];
-                const th = entry.total.h || 0;
-                const tm = entry.total.m || 0;
+                const th = entry.total?.h || 0;
+                const tm = entry.total?.m || 0;
 
                 const pills = APPS.map(app => {
-                    const a = entry.apps[app.id];
+                    const a = entry.apps?.[app.id];
                     const mins = (a?.h || 0) * 60 + (a?.m || 0);
                     if (mins === 0) return '';
                     const snapClass = app.id === 'snapchat' ? ' snap-pill' : '';
@@ -1158,7 +1124,7 @@
                 const totalMin = th * 60 + tm;
                 let appMin = 0;
                 APPS.forEach(app => {
-                    const a = entry.apps[app.id];
+                    const a = entry.apps?.[app.id];
                     appMin += (a?.h || 0) * 60 + (a?.m || 0);
                 });
                 const otherMin = totalMin - appMin;
@@ -1179,9 +1145,7 @@
                     if (c.work === true) badges.push('<span class="checkin-badge positive">Work</span>');
                     else if (c.work === false) badges.push('<span class="checkin-badge negative">No work</span>');
                     if (c.rating != null) badges.push(`<span class="checkin-badge rating">${parseFloat(c.rating).toFixed(1)}/10</span>`);
-                    if (badges.length) {
-                        checkinHtml = `<div class="history-checkin">${badges.join('')}</div>`;
-                    }
+                    if (badges.length) checkinHtml = `<div class="history-checkin">${badges.join('')}</div>`;
                 }
 
                 return `
@@ -1200,16 +1164,16 @@
             }).join('');
         }
 
-        function editEntry(dateStr) {
+        async function editEntry(dateStr) {
             document.getElementById('entry-date').value = dateStr;
-            loadEntryToForm(dateStr);
+            await loadEntryToForm(dateStr);
             switchTab('input');
         }
 
-        function deleteEntryConfirm(dateStr) {
+        async function deleteEntryConfirm(dateStr) {
             if (confirm(`Delete entry for ${formatDate(dateStr)}?`)) {
-                deleteEntry(dateStr);
-                renderHistory();
+                await deleteEntry(dateStr);
+                await renderHistory();
                 if (document.getElementById('entry-date').value === dateStr) {
                     clearForm();
                     calculate();
@@ -1226,7 +1190,7 @@
         let chartRating = null;
         let chartHabits = null;
 
-        function renderCharts() {
+        async function renderCharts() {
             if (typeof Chart === 'undefined') {
                 document.getElementById('chart-empty').textContent = 'Chart library failed to load. Check your internet connection.';
                 document.getElementById('chart-empty').style.display = 'block';
@@ -1234,7 +1198,7 @@
                 return;
             }
 
-            const data = loadAllData();
+            const data = await loadAllData();
             const dates = Object.keys(data.entries).sort();
 
             if (dates.length < 2) {
@@ -1251,30 +1215,25 @@
             // Chart 1: Total screen time line
             const totalData = recent.map(d => {
                 const e = data.entries[d];
-                return +((e.total.h * 60 + e.total.m) / 60).toFixed(2);
+                return +(((e.total?.h || 0) * 60 + (e.total?.m || 0)) / 60).toFixed(2);
             });
 
             if (chartTotal) chartTotal.destroy();
             chartTotal = new Chart(document.getElementById('chart-total'), {
                 type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        label: 'Total (hours)',
-                        data: totalData,
-                        borderColor: '#007aff',
-                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 4,
-                        pointBackgroundColor: '#007aff'
-                    }]
-                },
+                data: { labels, datasets: [{
+                    label: 'Total (hours)',
+                    data: totalData,
+                    borderColor: '#007aff',
+                    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#007aff'
+                }]},
                 options: {
                     responsive: true,
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Hours' } }
-                    },
+                    scales: { y: { beginAtZero: true, title: { display: true, text: 'Hours' } } },
                     plugins: { legend: { display: false } }
                 }
             });
@@ -1283,7 +1242,7 @@
             const appDatasets = APPS.map(app => ({
                 label: app.label,
                 data: recent.map(d => {
-                    const a = data.entries[d].apps[app.id];
+                    const a = data.entries[d].apps?.[app.id];
                     return +(((a?.h || 0) * 60 + (a?.m || 0)) / 60).toFixed(2);
                 }),
                 backgroundColor: app.color
@@ -1293,10 +1252,10 @@
                 label: 'Other',
                 data: recent.map(d => {
                     const e = data.entries[d];
-                    const totalMin = e.total.h * 60 + e.total.m;
+                    const totalMin = (e.total?.h || 0) * 60 + (e.total?.m || 0);
                     let appMin = 0;
                     APPS.forEach(app => {
-                        const a = e.apps[app.id];
+                        const a = e.apps?.[app.id];
                         appMin += (a?.h || 0) * 60 + (a?.m || 0);
                     });
                     return +(Math.max(0, totalMin - appMin) / 60).toFixed(2);
@@ -1314,24 +1273,22 @@
                         x: { stacked: true },
                         y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Hours' } }
                     },
-                    plugins: {
-                        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8 } }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8 } } }
                 }
             });
 
             // Chart 3: Horizontal bar - average per app
             const allDates = Object.keys(data.entries);
-            const count = allDates.length;
+            const count = allDates.length || 1;
             const appTotals = APPS.map(() => 0);
             let otherTotal = 0;
 
             allDates.forEach(d => {
                 const e = data.entries[d];
-                const totalMin = e.total.h * 60 + e.total.m;
+                const totalMin = (e.total?.h || 0) * 60 + (e.total?.m || 0);
                 let appMin = 0;
                 APPS.forEach((app, i) => {
-                    const a = e.apps[app.id];
+                    const a = e.apps?.[app.id];
                     const mins = (a?.h || 0) * 60 + (a?.m || 0);
                     appTotals[i] += mins;
                     appMin += mins;
@@ -1346,19 +1303,11 @@
             if (chartAverages) chartAverages.destroy();
             chartAverages = new Chart(document.getElementById('chart-averages'), {
                 type: 'bar',
-                data: {
-                    labels: avgLabels,
-                    datasets: [{
-                        data: avgData,
-                        backgroundColor: avgColors
-                    }]
-                },
+                data: { labels: avgLabels, datasets: [{ data: avgData, backgroundColor: avgColors }] },
                 options: {
                     indexAxis: 'y',
                     responsive: true,
-                    scales: {
-                        x: { beginAtZero: true, title: { display: true, text: 'Avg Hours / Day' } }
-                    },
+                    scales: { x: { beginAtZero: true, title: { display: true, text: 'Avg Hours / Day' } } },
                     plugins: { legend: { display: false } }
                 }
             });
@@ -1373,24 +1322,19 @@
                 if (chartRating) chartRating.destroy();
                 chartRating = new Chart(document.getElementById('chart-rating'), {
                     type: 'line',
-                    data: {
-                        labels: ratingLabels,
-                        datasets: [{
-                            label: 'Day Rating',
-                            data: ratingData,
-                            borderColor: '#ff9500',
-                            backgroundColor: 'rgba(255, 149, 0, 0.1)',
-                            fill: true,
-                            tension: 0.3,
-                            pointRadius: 5,
-                            pointBackgroundColor: '#ff9500'
-                        }]
-                    },
+                    data: { labels: ratingLabels, datasets: [{
+                        label: 'Day Rating',
+                        data: ratingData,
+                        borderColor: '#ff9500',
+                        backgroundColor: 'rgba(255, 149, 0, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ff9500'
+                    }]},
                     options: {
                         responsive: true,
-                        scales: {
-                            y: { min: 1, max: 10, title: { display: true, text: 'Rating' } }
-                        },
+                        scales: { y: { min: 1, max: 10, title: { display: true, text: 'Rating' } } },
                         plugins: { legend: { display: false } }
                     }
                 });
@@ -1405,6 +1349,7 @@
                 document.getElementById('section-habits').style.display = 'block';
                 let workoutYes = 0, creatineYes = 0, workYes = 0;
                 const cTotal = datesWithCheckin.length;
+
                 datesWithCheckin.forEach(d => {
                     const c = data.entries[d].checkin;
                     if (c.workout === true) workoutYes++;
@@ -1421,26 +1366,14 @@
                 if (chartHabits) chartHabits.destroy();
                 chartHabits = new Chart(document.getElementById('chart-habits'), {
                     type: 'bar',
-                    data: {
-                        labels: ['Workout', 'Creatine', 'Work'],
-                        datasets: [{
-                            data: habitsData,
-                            backgroundColor: ['#34c759', '#007aff', '#ff9500']
-                        }]
-                    },
+                    data: { labels: ['Workout', 'Creatine', 'Work'], datasets: [{ data: habitsData, backgroundColor: ['#34c759', '#007aff', '#ff9500'] }] },
                     options: {
                         indexAxis: 'y',
                         responsive: true,
-                        scales: {
-                            x: { min: 0, max: 100, title: { display: true, text: '% of Days' } }
-                        },
+                        scales: { x: { min: 0, max: 100, title: { display: true, text: '% of Days' } } },
                         plugins: {
                             legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ctx.raw + '% of days'
-                                }
-                            }
+                            tooltip: { callbacks: { label: ctx => ctx.raw + '% of days' } }
                         }
                     }
                 });
@@ -1450,8 +1383,93 @@
             }
         }
 
+        // --- Auth actions ---
+        async function signUp() {
+            const sb = window.supabase;
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!sb) { showToast('Supabase not loaded yet'); return; }
+            if (!email || !password) { showToast('Enter email + password'); return; }
+
+            const { error } = await sb.auth.signUp({ email, password });
+
+            if (error) {
+                console.error(error);
+                showToast(error.message || 'Sign up failed');
+                return;
+            }
+
+            document.getElementById('auth-status').textContent =
+                'Sign up successful. If email confirmation is enabled, check your inbox to confirm before logging in.';
+            showToast('Signed up');
+        }
+
+        async function logIn() {
+            const sb = window.supabase;
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+
+            if (!sb) { showToast('Supabase not loaded yet'); return; }
+            if (!email || !password) { showToast('Enter email + password'); return; }
+
+            const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                console.error(error);
+                showToast(error.message || 'Login failed');
+                return;
+            }
+
+            currentUser = data.user;
+            setAuthUI();
+            showToast('Logged in');
+
+            // Refresh UI from cloud
+            await loadEntryToForm(document.getElementById('entry-date').value || getTodayStr());
+            if (document.querySelector('.tab-btn.active')?.dataset?.tab === 'history') await renderHistory();
+            if (document.querySelector('.tab-btn.active')?.dataset?.tab === 'charts') await renderCharts();
+        }
+
+        async function logOut() {
+            const sb = window.supabase;
+            if (!sb) return;
+
+            await sb.auth.signOut();
+            currentUser = null;
+            setAuthUI();
+            showToast('Logged out');
+
+            // Refresh UI from local
+            await loadEntryToForm(document.getElementById('entry-date').value || getTodayStr());
+            if (document.querySelector('.tab-btn.active')?.dataset?.tab === 'history') await renderHistory();
+            if (document.querySelector('.tab-btn.active')?.dataset?.tab === 'charts') await renderCharts();
+        }
+
         // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Wait a tick for the module script to attach window.supabase
+            await new Promise(r => setTimeout(r, 0));
+
+            // Load existing session (if user already logged in before)
+            if (window.supabase) {
+                const { data } = await window.supabase.auth.getSession();
+                currentUser = data.session?.user ?? null;
+
+                // Also listen for auth changes
+                window.supabase.auth.onAuthStateChange((_event, session) => {
+                    currentUser = session?.user ?? null;
+                    setAuthUI();
+                });
+            }
+
+            setAuthUI();
+
+            // Auth buttons
+            document.getElementById('btn-signup').addEventListener('click', signUp);
+            document.getElementById('btn-login').addEventListener('click', logIn);
+            document.getElementById('btn-logout').addEventListener('click', logOut);
+
             // Tab switching
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', () => switchTab(btn.dataset.tab));
@@ -1460,45 +1478,42 @@
             // Date picker
             const dateInput = document.getElementById('entry-date');
             dateInput.value = getTodayStr();
-            dateInput.addEventListener('change', () => loadEntryToForm(dateInput.value));
+            dateInput.addEventListener('change', async () => loadEntryToForm(dateInput.value));
 
             // Today button
-            document.getElementById('btn-today').addEventListener('click', () => {
+            document.getElementById('btn-today').addEventListener('click', async () => {
                 dateInput.value = getTodayStr();
-                loadEntryToForm(getTodayStr());
+                await loadEntryToForm(getTodayStr());
             });
 
             // Save button -> saves screen time then shows checkin
-            document.getElementById('btn-save').addEventListener('click', () => {
+            document.getElementById('btn-save').addEventListener('click', async () => {
                 const dateStr = dateInput.value;
-                if (!dateStr) {
-                    showToast('Please select a date');
-                    return;
-                }
+                if (!dateStr) { showToast('Please select a date'); return; }
 
                 const totalMin = getVal('total-h') * 60 + getVal('total-m');
                 if (totalMin === 0) {
                     if (!confirm('Total screen time is 0. Save anyway?')) return;
                 }
 
-                const data = loadAllData();
+                const data = await loadAllData();
                 if (data.entries[dateStr]) {
                     if (!confirm('An entry for this date already exists. Overwrite?')) return;
                 }
 
-                saveEntry(dateStr);
-                showToast('Screen time saved');
-                showCheckin(dateStr);
+                await saveEntry(dateStr);
+                showToast(currentUser ? 'Saved (synced to cloud)' : 'Saved (local)');
+                await showCheckin(dateStr);
             });
 
             // Checkin save
-            document.getElementById('btn-checkin-save').addEventListener('click', () => {
+            document.getElementById('btn-checkin-save').addEventListener('click', async () => {
                 if (checkinState.workout === null || checkinState.creatine === null || checkinState.work === null) {
                     showToast('Please answer all questions');
                     return;
                 }
-                saveCheckin(checkinDateStr);
-                showToast('Check-in saved');
+                await saveCheckin(checkinDateStr);
+                showToast(currentUser ? 'Check-in saved (synced)' : 'Check-in saved');
                 hideCheckin();
             });
 
@@ -1508,7 +1523,7 @@
             });
 
             // Load today's entry if it exists
-            loadEntryToForm(getTodayStr());
+            await loadEntryToForm(getTodayStr());
         });
     </script>
 </body>
